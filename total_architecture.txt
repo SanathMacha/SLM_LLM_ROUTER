@@ -1,0 +1,483 @@
+Section 1: Architectural Context & Execution Objectives
+1.1 Purpose & Executive Objective
+The objective of this engineering initiative is to implement, evaluate, and benchmark a production-grade SLM + LLM Cascade Routing Engine. The system routes natural language reasoning queries first to a local Small Language Model (SLM, running at zero marginal API cost via local inference) and conditionally escalates only failed or uncertain queries to a high-capacity Cloud Large Language Model (LLM via Groq API).
+
+Beyond the operational routing mechanism, this project implements a rigorous, statistically grounded Evaluation & Deferral Harness. It generates an empirical deferral curve comparing actual router performance against three mathematical reference baselines:
+
+All-SLM Floor: Zero escalations (f=0.0).
+
+Random Router Control: Stochastic escalation at identical rate f.
+
+Oracle Router Ceiling: Perfect escalation exclusively on SLM failures at rate f.
+
+1.2 Current Implementation State
+The following core infrastructure is verified and operational in E:\Projects\slm-llm-router:
+
+pyproject.toml / uv.lock: Environment dependencies (ollama>=0.6.2, groq>=1.6.0, python-dotenv>=1.2.2, rich>=15.0.0, matplotlib>=3.11.1, numpy>=2.5.2).
+
+.env: Groq API credentials and environment definitions.
+
+src/config.py: Centralized path resolution, model identifiers, temperature parameters, and strictness grid definitions (0 to 5).
+
+src/pricing.py: Exact marginal token-cost accounting for local ($0.00) and hosted model calls ($0.15/$0.60 per 1M tokens for 120B).
+
+Section 2: Phase I — Local Response Caching Engine (src/cache.py)
+2.1 Purpose & Goal
+Implement a thread-safe, persistent SQLite cache. This prevents redundant API token consumption against Groq's daily rate limits (200k tokens/day) and eliminates repeated compute on local SLM inferences during iterative benchmarking runs.
+
+2.2 Inputs & Dependencies
+Prerequisites: src/config.py (CACHE_PATH, PROMPT_VERSION).
+
+Storage Engine: SQLite3 (standard library), zero external DB dependencies.
+
+2.3 Step-by-Step Implementation Instructions
+Schema Definition: Initialize output/cache.sqlite with a table responses containing:
+
+cache_key TEXT PRIMARY KEY: SHA-256 hash of (model_name, prompt_version, system_prompt, user_query, temperature).
+
+model TEXT NOT NULL
+
+prompt_tokens INTEGER NOT NULL
+
+completion_tokens INTEGER NOT NULL
+
+cost_usd REAL NOT NULL
+
+latency_s REAL NOT NULL
+
+raw_response TEXT NOT NULL
+
+parsed_answer TEXT NOT NULL
+
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+Deterministic Hashing: Implement make_cache_key(model: str, system_prompt: str, query: str, temperature: float, prompt_version: str) -> str.
+
+Lookup & Storage Interfaces:
+
+get_cached_response(key: str) -> dict | None: Query by hash key.
+
+set_cached_response(key: str, data: dict) -> None: Atomic upsert into SQLite.
+
+Smoke Test: Include an executable __main__ block that tests cache insertion, immediate hit retrieval, and cache miss scenarios.
+
+2.4 Expected Deliverables
+File: src/cache.py
+
+Database file: output/cache.sqlite (generated on first execution).
+
+2.5 Quality & Success Metrics
+Deterministic Retrieval: Identical parameter tuples must produce an exact hash match and retrieve cached dictionaries in under 2 ms.
+
+Lock Safety: SQLite connections must handle concurrent read/write transactions without database lock timeouts (timeout=30.0).
+
+Section 3: Phase II — Dual-Tier Inference Engine (src/tiers.py)
+3.1 Purpose & Goal
+Build unified execution wrappers around local Ollama inference and Groq Cloud API inference, enforcing consistent input/output contracts so downstream routing logic is decoupled from client SDK specifics.
+
+3.2 Inputs & Dependencies
+Prerequisites: src/config.py, src/pricing.py, src/cache.py.
+
+Libraries: ollama, groq.
+
+3.3 Step-by-Step Implementation Instructions
+Unified Return Type: Define a standardized response schema across all model tiers:
+
+Python
+{
+    "answer": str,
+    "in_tok": int,
+    "out_tok": int,
+    "cost_usd": float,
+    "latency_s": float,
+    "server_s": float,
+    "model": str,
+    "cached": bool
+}
+Local SLM Tier Implementation (call_slm):
+
+Interface with Ollama client (qwen3.5:4b).
+
+Pass formatted SYSTEM_PROMPT enforcing Answer: <value> termination.
+
+Enforce SLM_MAX_TOKENS = 160 and TEMPERATURE = 0.0.
+
+Compute cost via src/pricing.py ($0.00).
+
+Hosted LLM Tier Implementation (call_llm):
+
+Interface with Groq client (openai/gpt-oss-120b).
+
+Enforce LLM_MAX_TOKENS = 320 and TEMPERATURE = 0.0.
+
+Parse prompt and completion token counts from the response object; compute cost via src/pricing.py.
+
+Cache Interception: Intercept both calls with src/cache.py before executing network or GPU requests.
+
+Self-Consistency Sampling Helper (sample_slm):
+
+Provide a helper to sample K responses (default K=3) at SELF_CONSISTENCY_TEMP = 0.7 for consistency grading.
+
+3.4 Expected Deliverables
+File: src/tiers.py
+
+3.5 Quality & Success Metrics
+Both call_slm and call_llm return identical dictionary structures.
+
+Zero unhandled exceptions on network/timeout errors (must implement clean backoff and error wrapping).
+
+Section 4: Phase III — Deterministic Grader & Verification Engine (src/grader.py, src/verifier.py)
+4.1 Purpose & Goal
+Provide objective, rule-based evaluation of model outputs without using a slow/expensive LLM-as-a-judge, and implement the monotonic multi-tier verifier that triggers escalations.
+
++---------------------------------------------------------------------------------------------------+
+|                                      MONOTONIC STRICTNESS LEVELS                                   |
++---------+----------------------------------------------------+------------------------------------+
+| Level 0 | Never Escalate                                     | Floor Baseline                     |
+| Level 1 | Empty / Unparseable Output                         | Format Parsing Check               |
+| Level 2 | Level 1 + Constraint / Type Mismatch               | Output Contract Check              |
+| Level 3 | Level 2 + Hedging / Uncertainty Expressions        | Confidence Lexicon Check           |
+| Level 4 | Level 3 + Multi-Sample Disagreement (k=3, T=0.7)   | Self-Consistency Verification      |
+| Level 5 | Always Escalate                                    | Ceiling Baseline                   |
++---------+----------------------------------------------------+------------------------------------+
+4.2 Inputs & Dependencies
+Prerequisites: src/config.py, src/tiers.py.
+
+4.3 Step-by-Step Implementation Instructions
+Extraction & Grader (src/grader.py):
+
+Parse text following Answer: prefix.
+
+Strip trailing whitespace, punctuation, and markdown formatting.
+
+Normalize numeric strings (e.g., "1,000" -> "1000", "$45.00" -> "45").
+
+Implement grade_answer(predicted: str, target: str) -> bool.
+
+Verifier Module (src/verifier.py):
+
+Level 1 Check: Verify parsed answer is non-empty and well-formed.
+
+Level 2 Check: Enforce target formatting constraints (e.g., integer vs float vs string).
+
+Level 3 Check: Regex match hedging phrases in the reasoning trace ("maybe", "not sure", "could be", "likely", "uncertain").
+
+Level 4 Check: Evaluate K=3 self-consistency samples from src/tiers.py. Escalate if any two disagree.
+
+Implement should_escalate(query: str, slm_output: dict, strictness: int) -> tuple[bool, str].
+
+4.4 Expected Deliverables
+Files: src/grader.py, src/verifier.py
+
+4.5 Quality & Success Metrics
+Grader must achieve 100% determinism on GSM8K numeric format variations.
+
+Escalation rates across strictness levels 0→5 must be strictly monotonic (P 
+esc
+​
+ (L 
+i
+​
+ )≤P 
+esc
+​
+ (L 
+i+1
+​
+ )).
+
+Section 5: Phase IV — Evaluation Dataset & Calibration Matrix (src/dataset.py, src/matrix.py)
+5.1 Purpose & Goal
+Manage evaluation query sets (N=120 GSM8K problems) and construct the complete Answer Matrix across all models and samples to allow zero-cost replay of routing strategies.
+
+5.2 Inputs & Dependencies
+Prerequisites: src/config.py, src/tiers.py, src/grader.py.
+
+Data File: data/queries.json
+
+5.3 Step-by-Step Implementation Instructions
+Dataset Loader (src/dataset.py):
+
+Load JSON dataset containing {id, query, target_answer, type}.
+
+Validate dataset completeness (N=120).
+
+Answer Matrix Generation (src/matrix.py):
+
+For each query, execute and record:
+
+Deterministic SLM response (T=0.0).
+
+K=3 SLM consistency samples (T=0.7).
+
+LLM fallback response (T=0.0).
+
+Persist full matrix into SQLite cache or output/matrix.json.
+
+Record token counts, latencies, extracted answers, and Boolean correctness.
+
+5.4 Expected Deliverables
+Files: src/dataset.py, src/matrix.py
+
+Output: data/queries.json validated, output/matrix.json populated.
+
+5.5 Quality & Success Metrics
+Complete matrix coverage (120×5 evaluated inference records with zero missing values).
+
+Section 6: Phase V — Statistical Routing Engine & Deferral Benchmarking (src/router.py, src/benchmark.py)
+6.1 Purpose & Goal
+Simulate routing across all strictness thresholds against the three control baselines, calculate statistical cost vs. accuracy trade-offs, and generate the final publication-ready artifacts.
+
+6.2 Inputs & Dependencies
+Prerequisites: src/matrix.py, src/pricing.py, src/verifier.py.
+
+Libraries: matplotlib, numpy, rich.
+
+6.3 Step-by-Step Implementation Instructions
+Cascade Router Logic (src/router.py):
+
+Replay cached answers through each strictness level.
+
+Account for double-billing on escalation:
+
+Total Cost=Cost(SLM)+I(Escalated)×Cost(LLM)
+Control Baselines Computation:
+
+All-SLM: Strictness 0.
+
+Random Router: For each strictness level's escalation rate f, perform 1,000 random escalation draws and calculate mean accuracy.
+
+Oracle Router: Escalate strictly the items where SLM is incorrect, up to rate f.
+
+Artifact Generation (src/benchmark.py):
+
+Render rich terminal leaderboard with columns: Strictness, Escalation %, Accuracy, Total Cost ($), Savings vs LLM %, Cost/Correct ($).
+
+Export output/leaderboard.md.
+
+Plot output/deferral_curve.png using matplotlib showing:
+
+Floor line (All-SLM)
+
+Ceiling line (Oracle)
+
+Diagonal control line (Random Router)
+
+Actual Cascade Router curve (bowing above the random diagonal).
+
+6.4 Expected Deliverables
+Files: src/router.py, src/benchmark.py
+
+Artifacts: output/leaderboard.md, output/deferral_curve.png, output/results.json.
+
+6.5 Quality & Success Metrics
+The deferral curve for the Cascade Router must bow strictly above the Random Router linear interpolation.
+
+Verified savings percentage calculation matching the cost ledger.
+
+Section 7: Troubleshooting & Common Pitfalls
+Windows CP1252 Unicode Errors:
+
+Symptom: UnicodeEncodeError: 'charmap' codec can't encode characters during model output streaming.
+
+Fix: Ensure _force_utf8_console() from src/config.py is invoked at top-level module load.
+
+Missing Environment Variables Under uv run:
+
+Symptom: GROQ_API_KEY is not set even if set in PowerShell.
+
+Fix: Verify load_dotenv() runs before any os.getenv() calls in every standalone entrypoint. Always run with $env:PYTHONPATH=".".
+
+Ollama Connection Refused:
+
+Symptom: httpx.ConnectError: [Errno 10061] Connect call failed 127.0.0.1:11434.
+
+Fix: Ensure Ollama background daemon is running (ollama serve or Ollama Windows tray app active).
+
+SQLite Locking Contention:
+
+Symptom: sqlite3.OperationalError: database is locked.
+
+Fix: Configure sqlite3.connect(CACHE_PATH, timeout=30.0) and enable WAL mode (PRAGMA journal_mode=WAL;).
+
+Section 8: Resumption Verification Checklist
+Use this checklist to systematically verify completion of each component:
+
+[ ] src/config.py runs cleanly via $env:PYTHONPATH="."; uv run python -m src.config with key set.
+
+[ ] src/pricing.py smoke test passes with exact $0 local rate.
+
+[ ] src/cache.py created, tested, and verified to persist queries to output/cache.sqlite.
+
+[ ] src/tiers.py executes uniform schema tests against both Ollama (qwen3.5:4b) and Groq (openai/gpt-oss-120b).
+
+[ ] src/grader.py successfully normalizes and checks answers without an LLM judge.
+
+[ ] src/verifier.py passes all monotonic strictness escalation tests (0→5).
+
+[ ] src/dataset.py and src/matrix.py generate complete evaluation responses for N=120 queries.
+
+[ ] src/benchmark.py outputs output/leaderboard.md and generates output/deferral_curve.png.
+
+
+Section 9: The Eval Set (src/dataset.py)9.1 Purpose & GoalTo curate, validate, and load a balanced benchmark set of $N=120$ GSM8K multi-step reasoning problems into memory. This provides the fixed testing ground to evaluate routing accuracy without bias.9.2 Inputs & DependenciesPrerequisites: src/config.py (specifically the QUERIES_PATH variable).Data File: A populated data/queries.json containing the vendored evaluation slice.9.3 Precise Steps to Complete the WorkDataset Acquisition: Verify data/queries.json exists in the correct directory relative to the project root.Implementation of Loader: Create load_eval_set() to read and parse the JSON array into structured Python dictionaries.Schema Validation: Enforce that every loaded record contains a non-empty id, query, target_answer, and category.Executable Smoke Test: Append a __main__ block that calls the loader and prints the total count of loaded records to the terminal.9.4 Expected Outputs & DeliverablesSource File: src/dataset.py9.5 Quality & Success MetricsThe loader must return exactly 120 validated problem instances.Zero records may contain null or missing target answers.
+
+
+Section 10: The Calibration Gate (src/calibrate.py)10.1 Purpose & GoalTo run an initial diagnostic pass over a subset of queries to verify that the local SLM has a non-trivial accuracy floor, and that the cloud LLM provides a measurable accuracy ceiling. This mathematically confirms the cascade problem is well-posed before committing to the full run.10.2 Inputs & DependenciesPrerequisites: src/dataset.py, src/tiers.py, src/grader.py.10.3 Precise Steps to Complete the WorkSubset Selection: Slice the first 20 items deterministically from the loaded evaluation set.Baseline Execution: Execute all 20 items through both call_slm (hitting the local GPU) and call_llm (hitting the Groq API).Accuracy Calculation: Grade the responses and calculate the raw accuracy percentage for both tiers independently.Executable Smoke Test: Print a brief diagnostic report showing the SLM accuracy vs. LLM accuracy on this calibration subset.10.4 Expected Outputs & DeliverablesSource File: src/calibrate.py10.5 Quality & Success MetricsThe script must prove that $\text{Accuracy}(\text{LLM}) > \text{Accuracy}(\text{SLM})$. If this fails, the models or grader are configured incorrectly.
+
+Section 11: The Verifier (src/verifier.py)11.1 Purpose & GoalTo implement the core escalation engine: a multi-stage local verification algorithm that evaluates the small model's answer and determines whether to accept it at zero cost or escalate to the paid large model.11.2 Inputs & DependenciesPrerequisites: src/config.py, src/grader.py.11.3 Precise Steps to Complete the WorkParse Verification: Write a function to escalate if the SLM output is empty or completely missing the Answer: structure.Type Constraint Verification: Write a function to escalate if the parsed value violates required numeric data types.Lexicon Verification: Implement a regex search to escalate if the reasoning trace contains hedging markers (e.g., "maybe", "not sure", "uncertain").Consistency Verification: Write a function that accepts $K=3$ stochastic samples and escalates if any two answers mathematically disagree.Strictness Controller: Implement evaluate_escalation(query, slm_output, strictness_level) to map levels 0 through 5 to their respective checks.11.4 Expected Outputs & DeliverablesSource File: src/verifier.py11.5 Quality & Success MetricsThe logic must enforce strict monotonicity: $P_{esc}(L_i) \le P_{esc}(L_{i+1})$. Higher strictness levels must never result in fewer escalations than lower levels.
+
+Section 12: The Answer Matrix (src/matrix.py)12.1 Purpose & GoalTo execute and record all inference calls for the entire benchmark once. This pre-computes the greedy local responses, the stochastic local samples, and the cloud fallback answers, allowing instant, zero-cost simulated replays of various routing strategies.12.2 Inputs & DependenciesPrerequisites: src/dataset.py, src/tiers.py, src/grader.py, src/cache.py.12.3 Precise Steps to Complete the WorkIterative Pipeline: Loop over all 120 queries from the dataset.Tier Execution: For each query, request one deterministic SLM response ($T=0.0$), three SLM consistency samples ($T=0.7$), and one deterministic LLM response ($T=0.0$).Grading Integration: Pass every generated response through the deterministic grader and append the boolean correctness to the record.Serialization: Write the massive dictionary of results to disk as output/results.json.12.4 Expected Outputs & DeliverablesSource File: src/matrix.pyData Artifact: output/results.json12.5 Quality & Success MetricsExecution of this file must utilize the RTX 3070 heavily for local inferences, completing all samples without memory overflows.The resulting JSON must contain exactly 600 total inference records (5 per query) with zero missing values.
+
+Section 13: Strategies and the Three Controls (src/strategies.py)13.1 Purpose & GoalTo implement the replay simulation engine that routes the pre-computed answer matrix across the test strictness levels and compares them against the three mathematical reference controls.13.2 Inputs & DependenciesPrerequisites: src/matrix.py, src/verifier.py, src/pricing.py.13.3 Precise Steps to Complete the WorkCascade Replay Logic: Iterate through strictness levels 0 to 5. For each level, apply the verifier rules to determine if the query would have been escalated.All-SLM Control: Simulate the floor baseline representing $0\%$ escalation ($f = 0.0$).Random Router Control: For every observed escalation fraction $f$, simulate 1,000 stochastic escalation draws and calculate the mean resulting accuracy.Oracle Router Control: Simulate a perfect ceiling baseline where only items answered incorrectly by the local SLM are escalated, up to rate $f$.13.4 Expected Outputs & DeliverablesSource File: src/strategies.py13.5 Quality & Success MetricsThe total cost computation within the Cascade Replay must strictly account for double-billing (paying the local compute penalty time plus the cloud API token cost) on escalated queries.
+
+Section 14: Statistics at n=120 (src/stats.py)14.1 Purpose & GoalTo calculate aggregate metrics, binomial confidence intervals, cost-efficiency ratios, and real dollar savings over the benchmark run.14.2 Inputs & DependenciesPrerequisites: src/strategies.py, src/pricing.py.Libraries: numpy.14.3 Precise Steps to Complete the WorkRouting Fraction Calculation: Compute the exact escalation rate $f$ for each strategy.Savings Percentage Calculation: Compute $1 - \frac{\text{Total Cascade Cost}}{\text{All-LLM Baseline Cost}}$.Cost Efficiency Calculation: Compute the dollar cost per correct answer for each strictness level.Confidence Intervals: Use numpy to generate 95% binomial confidence intervals for both accuracy and escalation rates.14.4 Expected Outputs & DeliverablesSource File: src/stats.py14.5 Quality & Success MetricsAll computed percentages and dollar figures must align perfectly with the raw token counts stored in the cost ledger.
+
+
+
+Section 15: Scoring and the Leaderboard (src/leaderboard.py)
+15.1 Purpose & Goal
+To format and render the full benchmarking statistical results into a rich, easily scannable terminal table and export a cleanly formatted Markdown summary.
+
+15.2 Inputs & Dependencies
+Prerequisites: src/stats.py, src/config.py (specifically LEADERBOARD_PATH).
+
+Libraries: rich.
+
+15.3 Precise Steps to Complete the Work
+Terminal Display Configuration: Construct a rich table displaying columns for Strategy, Strictness, Routing Rate, Accuracy, Total Cost, and Savings %.
+
+Headline Extraction: Programmatically highlight the row corresponding to HEADLINE_STRICTNESS and calculate its specific accuracy delta against the random baseline.
+
+Markdown Exporter: Write an equivalent plain-text table structure to the configured output path.
+
+15.4 Expected Outputs & Deliverables
+Source File: src/leaderboard.py
+
+Output Artifact: output/leaderboard.md
+
+15.5 Quality & Success Metrics
+The terminal output must render without visual distortion.
+
+The exported Markdown file must be valid CommonMark syntax.
+
+
+Section 16: The Deferral Curve (src/plot.py)
+16.1 Purpose & Goal
+To generate the visual proof of the router's efficacy: a publication-quality chart showing accuracy plotted against the routing rate, demonstrating that the router outperforms random chance.
+
+16.2 Inputs & Dependencies
+Prerequisites: src/stats.py, src/config.py (specifically CURVE_PATH).
+
+Libraries: matplotlib.
+
+16.3 Precise Steps to Complete the Work
+Baseline Plotting: Draw the straight diagonal line connecting the All-SLM floor to the All-LLM ceiling (representing the Random Router) and plot the convex upper curve (representing the Oracle).
+
+Cascade Plotting: Scatter plot the empirical data points for strictness levels 0 through 5.
+
+Visual Annotations: Highlight the headline strictness operating point, label the gap over the random line, and format the axes.
+
+Image Export: Save the high-resolution figure to disk.
+
+16.4 Expected Outputs & Deliverables
+Source File: src/plot.py
+
+Visual Artifact: output/deferral_curve.png
+
+16.5 Quality & Success Metrics
+The generated PNG must clearly display the Cascade Router curve bowing significantly above the Random Router's linear baseline.
+
+
+Section 17: The Command Line Interface (src/cli.py)
+17.1 Purpose & Goal
+To construct a unified command-line entry point allowing seamless interaction with the codebase to run the benchmark, inspect individual queries, or clear the local cache.
+
+17.2 Inputs & Dependencies
+Prerequisites: All previous modules from Sections 2 through 16.
+
+Libraries: argparse.
+
+17.3 Precise Steps to Complete the Work
+Argument Parser Setup: Initialize argparse to accept specific sub-commands.
+
+Eval Command: Map the eval command to trigger the complete evaluation pipeline.
+
+Query Command: Map the query "<text>" command to route a single ad-hoc user query interactively through the cascade.
+
+Cache Management: Map a clear-cache command to safely delete output/cache.sqlite.
+
+17.4 Expected Outputs & Deliverables
+Source File: src/cli.py
+
+17.5 Quality & Success Metrics
+The CLI must provide clean help menus (--help) and handle graceful exits for all sub-commands.
+
+Section 18: Run It End-to-End (main.py)
+18.1 Purpose & Goal
+To provide the top-level execution wrapper that wires the CLI to the root of the project, allowing the entire pipeline to execute sequentially without manual script triggering.
+
+18.2 Inputs & Dependencies
+Prerequisites: src/cli.py.
+
+18.3 Precise Steps to Complete the Work
+Entry Point Creation: Create a simple main.py in the root directory.
+
+CLI Invocation: Import the CLI runner from src and execute it within an if __name__ == "__main__": block.
+
+System Verification: Execute the full pipeline using $env:PYTHONPATH="."; uv run python main.py eval.
+
+18.4 Expected Outputs & Deliverables
+Source File: main.py
+
+18.5 Quality & Success Metrics
+End-to-end execution finishes with exit code 0.
+
+All output artifacts (results.json, leaderboard.md, deferral_curve.png) are successfully populated in the output/ directory.
+
+Section 19: Advanced Troubleshooting & Diagnostic Matrix
+19.1 Purpose & Goal
+To provide immediate resolution strategies for the most common environmental, hardware, or network failures encountered during execution.
+
+19.2 Diagnostic Matrix
+CUDA Memory Exhaustion:
+
+Symptom: torch.cuda.OutOfMemoryError or local SLM crashing unexpectedly.
+
+Fix: Verify that no other heavy VRAM applications are running on the HP Omen 16. The qwen3.5:4b model requires approximately 3.4 GB of VRAM; ensure the RTX 3070 has sufficient overhead.
+
+Groq API Rate Limits:
+
+Symptom: RateLimitError: 429 Too Many Requests when escalating.
+
+Fix: Verify src/cache.py is actively preventing redundant calls. Check REQUEST_SPACING_S in config.py to ensure appropriate backoff between network requests.
+
+SQLite Locking Contention:
+
+Symptom: sqlite3.OperationalError: database is locked.
+
+Fix: Ensure sqlite3.connect is initialized with timeout=30.0 and that the database is set to WAL mode (PRAGMA journal_mode=WAL;).
+
+Section 20: Comprehensive Final Verification Checklist
+20.1 Project Completion Sign-Off
+Use this checklist to systematically verify completion of the newly implemented components:
+
+[ ] src/dataset.py successfully loads and validates 120 queries.
+
+[ ] src/calibrate.py confirms the cloud LLM outperforms the local SLM on the 20-item subset.
+
+[ ] src/verifier.py enforces strict monotonicity across all 5 strictness levels.
+
+[ ] src/matrix.py generates 600 total inferences and saves output/results.json.
+
+[ ] src/strategies.py accurately tracks double-billing costs during Cascade Replay.
+
+[ ] src/stats.py outputs mathematically sound savings percentages and confidence intervals.
+
+[ ] src/leaderboard.py generates a clean, readable output/leaderboard.md.
+
+[ ] src/plot.py outputs a clear output/deferral_curve.png with all baselines plotted.
+
+[ ] src/cli.py and main.py successfully route commands without stack traces.
+
+[ ] The entire system executes end-to-end via a single terminal command.

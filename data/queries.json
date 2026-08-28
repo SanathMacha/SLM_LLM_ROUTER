@@ -1,0 +1,722 @@
+[
+  {
+    "id": "q_001",
+    "query": "Janet has 5 cats and adopts 3 more. How many cats does she have in total?",
+    "target_answer": "8",
+    "category": "math"
+  },
+  {
+    "id": "q_002",
+    "query": "Janet has 6 cats and adopts 5 more. How many cats does she have in total?",
+    "target_answer": "11",
+    "category": "math"
+  },
+  {
+    "id": "q_003",
+    "query": "Janet has 7 cats and adopts 7 more. How many cats does she have in total?",
+    "target_answer": "14",
+    "category": "math"
+  },
+  {
+    "id": "q_004",
+    "query": "Janet has 8 cats and adopts 9 more. How many cats does she have in total?",
+    "target_answer": "17",
+    "category": "math"
+  },
+  {
+    "id": "q_005",
+    "query": "Janet has 9 cats and adopts 11 more. How many cats does she have in total?",
+    "target_answer": "20",
+    "category": "math"
+  },
+  {
+    "id": "q_006",
+    "query": "Janet has 10 cats and adopts 13 more. How many cats does she have in total?",
+    "target_answer": "23",
+    "category": "math"
+  },
+  {
+    "id": "q_007",
+    "query": "Janet has 11 cats and adopts 15 more. How many cats does she have in total?",
+    "target_answer": "26",
+    "category": "math"
+  },
+  {
+    "id": "q_008",
+    "query": "Janet has 12 cats and adopts 17 more. How many cats does she have in total?",
+    "target_answer": "29",
+    "category": "math"
+  },
+  {
+    "id": "q_009",
+    "query": "Janet has 13 cats and adopts 19 more. How many cats does she have in total?",
+    "target_answer": "32",
+    "category": "math"
+  },
+  {
+    "id": "q_010",
+    "query": "Janet has 14 cats and adopts 21 more. How many cats does she have in total?",
+    "target_answer": "35",
+    "category": "math"
+  },
+  {
+    "id": "q_011",
+    "query": "Janet has 15 cats and adopts 23 more. How many cats does she have in total?",
+    "target_answer": "38",
+    "category": "math"
+  },
+  {
+    "id": "q_012",
+    "query": "Janet has 16 cats and adopts 25 more. How many cats does she have in total?",
+    "target_answer": "41",
+    "category": "math"
+  },
+  {
+    "id": "q_013",
+    "query": "Janet has 17 cats and adopts 27 more. How many cats does she have in total?",
+    "target_answer": "44",
+    "category": "math"
+  },
+  {
+    "id": "q_014",
+    "query": "Janet has 18 cats and adopts 29 more. How many cats does she have in total?",
+    "target_answer": "47",
+    "category": "math"
+  },
+  {
+    "id": "q_015",
+    "query": "Janet has 19 cats and adopts 31 more. How many cats does she have in total?",
+    "target_answer": "50",
+    "category": "math"
+  },
+  {
+    "id": "q_016",
+    "query": "Janet has 20 cats and adopts 33 more. How many cats does she have in total?",
+    "target_answer": "53",
+    "category": "math"
+  },
+  {
+    "id": "q_017",
+    "query": "Janet has 21 cats and adopts 35 more. How many cats does she have in total?",
+    "target_answer": "56",
+    "category": "math"
+  },
+  {
+    "id": "q_018",
+    "query": "Janet has 22 cats and adopts 37 more. How many cats does she have in total?",
+    "target_answer": "59",
+    "category": "math"
+  },
+  {
+    "id": "q_019",
+    "query": "Janet has 23 cats and adopts 39 more. How many cats does she have in total?",
+    "target_answer": "62",
+    "category": "math"
+  },
+  {
+    "id": "q_020",
+    "query": "Janet has 24 cats and adopts 41 more. How many cats does she have in total?",
+    "target_answer": "65",
+    "category": "math"
+  },
+  {
+    "id": "q_021",
+    "query": "Janet has 25 cats and adopts 43 more. How many cats does she have in total?",
+    "target_answer": "68",
+    "category": "math"
+  },
+  {
+    "id": "q_022",
+    "query": "Janet has 26 cats and adopts 45 more. How many cats does she have in total?",
+    "target_answer": "71",
+    "category": "math"
+  },
+  {
+    "id": "q_023",
+    "query": "Janet has 27 cats and adopts 47 more. How many cats does she have in total?",
+    "target_answer": "74",
+    "category": "math"
+  },
+  {
+    "id": "q_024",
+    "query": "Janet has 28 cats and adopts 49 more. How many cats does she have in total?",
+    "target_answer": "77",
+    "category": "math"
+  },
+  {
+    "id": "q_025",
+    "query": "Janet has 29 cats and adopts 51 more. How many cats does she have in total?",
+    "target_answer": "80",
+    "category": "math"
+  },
+  {
+    "id": "q_026",
+    "query": "Janet has 30 cats and adopts 53 more. How many cats does she have in total?",
+    "target_answer": "83",
+    "category": "math"
+  },
+  {
+    "id": "q_027",
+    "query": "Janet has 31 cats and adopts 55 more. How many cats does she have in total?",
+    "target_answer": "86",
+    "category": "math"
+  },
+  {
+    "id": "q_028",
+    "query": "Janet has 32 cats and adopts 57 more. How many cats does she have in total?",
+    "target_answer": "89",
+    "category": "math"
+  },
+  {
+    "id": "q_029",
+    "query": "Janet has 33 cats and adopts 59 more. How many cats does she have in total?",
+    "target_answer": "92",
+    "category": "math"
+  },
+  {
+    "id": "q_030",
+    "query": "Janet has 34 cats and adopts 61 more. How many cats does she have in total?",
+    "target_answer": "95",
+    "category": "math"
+  },
+  {
+    "id": "q_031",
+    "query": "Janet has 35 cats and adopts 63 more. How many cats does she have in total?",
+    "target_answer": "98",
+    "category": "math"
+  },
+  {
+    "id": "q_032",
+    "query": "Janet has 36 cats and adopts 65 more. How many cats does she have in total?",
+    "target_answer": "101",
+    "category": "math"
+  },
+  {
+    "id": "q_033",
+    "query": "Janet has 37 cats and adopts 67 more. How many cats does she have in total?",
+    "target_answer": "104",
+    "category": "math"
+  },
+  {
+    "id": "q_034",
+    "query": "Janet has 38 cats and adopts 69 more. How many cats does she have in total?",
+    "target_answer": "107",
+    "category": "math"
+  },
+  {
+    "id": "q_035",
+    "query": "Janet has 39 cats and adopts 71 more. How many cats does she have in total?",
+    "target_answer": "110",
+    "category": "math"
+  },
+  {
+    "id": "q_036",
+    "query": "Janet has 40 cats and adopts 73 more. How many cats does she have in total?",
+    "target_answer": "113",
+    "category": "math"
+  },
+  {
+    "id": "q_037",
+    "query": "Janet has 41 cats and adopts 75 more. How many cats does she have in total?",
+    "target_answer": "116",
+    "category": "math"
+  },
+  {
+    "id": "q_038",
+    "query": "Janet has 42 cats and adopts 77 more. How many cats does she have in total?",
+    "target_answer": "119",
+    "category": "math"
+  },
+  {
+    "id": "q_039",
+    "query": "Janet has 43 cats and adopts 79 more. How many cats does she have in total?",
+    "target_answer": "122",
+    "category": "math"
+  },
+  {
+    "id": "q_040",
+    "query": "Janet has 44 cats and adopts 81 more. How many cats does she have in total?",
+    "target_answer": "125",
+    "category": "math"
+  },
+  {
+    "id": "q_041",
+    "query": "Janet has 45 cats and adopts 83 more. How many cats does she have in total?",
+    "target_answer": "128",
+    "category": "math"
+  },
+  {
+    "id": "q_042",
+    "query": "Janet has 46 cats and adopts 85 more. How many cats does she have in total?",
+    "target_answer": "131",
+    "category": "math"
+  },
+  {
+    "id": "q_043",
+    "query": "Janet has 47 cats and adopts 87 more. How many cats does she have in total?",
+    "target_answer": "134",
+    "category": "math"
+  },
+  {
+    "id": "q_044",
+    "query": "Janet has 48 cats and adopts 89 more. How many cats does she have in total?",
+    "target_answer": "137",
+    "category": "math"
+  },
+  {
+    "id": "q_045",
+    "query": "Janet has 49 cats and adopts 91 more. How many cats does she have in total?",
+    "target_answer": "140",
+    "category": "math"
+  },
+  {
+    "id": "q_046",
+    "query": "Janet has 50 cats and adopts 93 more. How many cats does she have in total?",
+    "target_answer": "143",
+    "category": "math"
+  },
+  {
+    "id": "q_047",
+    "query": "Janet has 51 cats and adopts 95 more. How many cats does she have in total?",
+    "target_answer": "146",
+    "category": "math"
+  },
+  {
+    "id": "q_048",
+    "query": "Janet has 52 cats and adopts 97 more. How many cats does she have in total?",
+    "target_answer": "149",
+    "category": "math"
+  },
+  {
+    "id": "q_049",
+    "query": "Janet has 53 cats and adopts 99 more. How many cats does she have in total?",
+    "target_answer": "152",
+    "category": "math"
+  },
+  {
+    "id": "q_050",
+    "query": "Janet has 54 cats and adopts 101 more. How many cats does she have in total?",
+    "target_answer": "155",
+    "category": "math"
+  },
+  {
+    "id": "q_051",
+    "query": "Janet has 55 cats and adopts 103 more. How many cats does she have in total?",
+    "target_answer": "158",
+    "category": "math"
+  },
+  {
+    "id": "q_052",
+    "query": "Janet has 56 cats and adopts 105 more. How many cats does she have in total?",
+    "target_answer": "161",
+    "category": "math"
+  },
+  {
+    "id": "q_053",
+    "query": "Janet has 57 cats and adopts 107 more. How many cats does she have in total?",
+    "target_answer": "164",
+    "category": "math"
+  },
+  {
+    "id": "q_054",
+    "query": "Janet has 58 cats and adopts 109 more. How many cats does she have in total?",
+    "target_answer": "167",
+    "category": "math"
+  },
+  {
+    "id": "q_055",
+    "query": "Janet has 59 cats and adopts 111 more. How many cats does she have in total?",
+    "target_answer": "170",
+    "category": "math"
+  },
+  {
+    "id": "q_056",
+    "query": "Janet has 60 cats and adopts 113 more. How many cats does she have in total?",
+    "target_answer": "173",
+    "category": "math"
+  },
+  {
+    "id": "q_057",
+    "query": "Janet has 61 cats and adopts 115 more. How many cats does she have in total?",
+    "target_answer": "176",
+    "category": "math"
+  },
+  {
+    "id": "q_058",
+    "query": "Janet has 62 cats and adopts 117 more. How many cats does she have in total?",
+    "target_answer": "179",
+    "category": "math"
+  },
+  {
+    "id": "q_059",
+    "query": "Janet has 63 cats and adopts 119 more. How many cats does she have in total?",
+    "target_answer": "182",
+    "category": "math"
+  },
+  {
+    "id": "q_060",
+    "query": "Janet has 64 cats and adopts 121 more. How many cats does she have in total?",
+    "target_answer": "185",
+    "category": "math"
+  },
+  {
+    "id": "q_061",
+    "query": "Janet has 65 cats and adopts 123 more. How many cats does she have in total?",
+    "target_answer": "188",
+    "category": "math"
+  },
+  {
+    "id": "q_062",
+    "query": "Janet has 66 cats and adopts 125 more. How many cats does she have in total?",
+    "target_answer": "191",
+    "category": "math"
+  },
+  {
+    "id": "q_063",
+    "query": "Janet has 67 cats and adopts 127 more. How many cats does she have in total?",
+    "target_answer": "194",
+    "category": "math"
+  },
+  {
+    "id": "q_064",
+    "query": "Janet has 68 cats and adopts 129 more. How many cats does she have in total?",
+    "target_answer": "197",
+    "category": "math"
+  },
+  {
+    "id": "q_065",
+    "query": "Janet has 69 cats and adopts 131 more. How many cats does she have in total?",
+    "target_answer": "200",
+    "category": "math"
+  },
+  {
+    "id": "q_066",
+    "query": "Janet has 70 cats and adopts 133 more. How many cats does she have in total?",
+    "target_answer": "203",
+    "category": "math"
+  },
+  {
+    "id": "q_067",
+    "query": "Janet has 71 cats and adopts 135 more. How many cats does she have in total?",
+    "target_answer": "206",
+    "category": "math"
+  },
+  {
+    "id": "q_068",
+    "query": "Janet has 72 cats and adopts 137 more. How many cats does she have in total?",
+    "target_answer": "209",
+    "category": "math"
+  },
+  {
+    "id": "q_069",
+    "query": "Janet has 73 cats and adopts 139 more. How many cats does she have in total?",
+    "target_answer": "212",
+    "category": "math"
+  },
+  {
+    "id": "q_070",
+    "query": "Janet has 74 cats and adopts 141 more. How many cats does she have in total?",
+    "target_answer": "215",
+    "category": "math"
+  },
+  {
+    "id": "q_071",
+    "query": "Janet has 75 cats and adopts 143 more. How many cats does she have in total?",
+    "target_answer": "218",
+    "category": "math"
+  },
+  {
+    "id": "q_072",
+    "query": "Janet has 76 cats and adopts 145 more. How many cats does she have in total?",
+    "target_answer": "221",
+    "category": "math"
+  },
+  {
+    "id": "q_073",
+    "query": "Janet has 77 cats and adopts 147 more. How many cats does she have in total?",
+    "target_answer": "224",
+    "category": "math"
+  },
+  {
+    "id": "q_074",
+    "query": "Janet has 78 cats and adopts 149 more. How many cats does she have in total?",
+    "target_answer": "227",
+    "category": "math"
+  },
+  {
+    "id": "q_075",
+    "query": "Janet has 79 cats and adopts 151 more. How many cats does she have in total?",
+    "target_answer": "230",
+    "category": "math"
+  },
+  {
+    "id": "q_076",
+    "query": "Janet has 80 cats and adopts 153 more. How many cats does she have in total?",
+    "target_answer": "233",
+    "category": "math"
+  },
+  {
+    "id": "q_077",
+    "query": "Janet has 81 cats and adopts 155 more. How many cats does she have in total?",
+    "target_answer": "236",
+    "category": "math"
+  },
+  {
+    "id": "q_078",
+    "query": "Janet has 82 cats and adopts 157 more. How many cats does she have in total?",
+    "target_answer": "239",
+    "category": "math"
+  },
+  {
+    "id": "q_079",
+    "query": "Janet has 83 cats and adopts 159 more. How many cats does she have in total?",
+    "target_answer": "242",
+    "category": "math"
+  },
+  {
+    "id": "q_080",
+    "query": "Janet has 84 cats and adopts 161 more. How many cats does she have in total?",
+    "target_answer": "245",
+    "category": "math"
+  },
+  {
+    "id": "q_081",
+    "query": "Janet has 85 cats and adopts 163 more. How many cats does she have in total?",
+    "target_answer": "248",
+    "category": "math"
+  },
+  {
+    "id": "q_082",
+    "query": "Janet has 86 cats and adopts 165 more. How many cats does she have in total?",
+    "target_answer": "251",
+    "category": "math"
+  },
+  {
+    "id": "q_083",
+    "query": "Janet has 87 cats and adopts 167 more. How many cats does she have in total?",
+    "target_answer": "254",
+    "category": "math"
+  },
+  {
+    "id": "q_084",
+    "query": "Janet has 88 cats and adopts 169 more. How many cats does she have in total?",
+    "target_answer": "257",
+    "category": "math"
+  },
+  {
+    "id": "q_085",
+    "query": "Janet has 89 cats and adopts 171 more. How many cats does she have in total?",
+    "target_answer": "260",
+    "category": "math"
+  },
+  {
+    "id": "q_086",
+    "query": "Janet has 90 cats and adopts 173 more. How many cats does she have in total?",
+    "target_answer": "263",
+    "category": "math"
+  },
+  {
+    "id": "q_087",
+    "query": "Janet has 91 cats and adopts 175 more. How many cats does she have in total?",
+    "target_answer": "266",
+    "category": "math"
+  },
+  {
+    "id": "q_088",
+    "query": "Janet has 92 cats and adopts 177 more. How many cats does she have in total?",
+    "target_answer": "269",
+    "category": "math"
+  },
+  {
+    "id": "q_089",
+    "query": "Janet has 93 cats and adopts 179 more. How many cats does she have in total?",
+    "target_answer": "272",
+    "category": "math"
+  },
+  {
+    "id": "q_090",
+    "query": "Janet has 94 cats and adopts 181 more. How many cats does she have in total?",
+    "target_answer": "275",
+    "category": "math"
+  },
+  {
+    "id": "q_091",
+    "query": "Janet has 95 cats and adopts 183 more. How many cats does she have in total?",
+    "target_answer": "278",
+    "category": "math"
+  },
+  {
+    "id": "q_092",
+    "query": "Janet has 96 cats and adopts 185 more. How many cats does she have in total?",
+    "target_answer": "281",
+    "category": "math"
+  },
+  {
+    "id": "q_093",
+    "query": "Janet has 97 cats and adopts 187 more. How many cats does she have in total?",
+    "target_answer": "284",
+    "category": "math"
+  },
+  {
+    "id": "q_094",
+    "query": "Janet has 98 cats and adopts 189 more. How many cats does she have in total?",
+    "target_answer": "287",
+    "category": "math"
+  },
+  {
+    "id": "q_095",
+    "query": "Janet has 99 cats and adopts 191 more. How many cats does she have in total?",
+    "target_answer": "290",
+    "category": "math"
+  },
+  {
+    "id": "q_096",
+    "query": "Janet has 100 cats and adopts 193 more. How many cats does she have in total?",
+    "target_answer": "293",
+    "category": "math"
+  },
+  {
+    "id": "q_097",
+    "query": "Janet has 101 cats and adopts 195 more. How many cats does she have in total?",
+    "target_answer": "296",
+    "category": "math"
+  },
+  {
+    "id": "q_098",
+    "query": "Janet has 102 cats and adopts 197 more. How many cats does she have in total?",
+    "target_answer": "299",
+    "category": "math"
+  },
+  {
+    "id": "q_099",
+    "query": "Janet has 103 cats and adopts 199 more. How many cats does she have in total?",
+    "target_answer": "302",
+    "category": "math"
+  },
+  {
+    "id": "q_100",
+    "query": "Janet has 104 cats and adopts 201 more. How many cats does she have in total?",
+    "target_answer": "305",
+    "category": "math"
+  },
+  {
+    "id": "q_101",
+    "query": "Janet has 105 cats and adopts 203 more. How many cats does she have in total?",
+    "target_answer": "308",
+    "category": "math"
+  },
+  {
+    "id": "q_102",
+    "query": "Janet has 106 cats and adopts 205 more. How many cats does she have in total?",
+    "target_answer": "311",
+    "category": "math"
+  },
+  {
+    "id": "q_103",
+    "query": "Janet has 107 cats and adopts 207 more. How many cats does she have in total?",
+    "target_answer": "314",
+    "category": "math"
+  },
+  {
+    "id": "q_104",
+    "query": "Janet has 108 cats and adopts 209 more. How many cats does she have in total?",
+    "target_answer": "317",
+    "category": "math"
+  },
+  {
+    "id": "q_105",
+    "query": "Janet has 109 cats and adopts 211 more. How many cats does she have in total?",
+    "target_answer": "320",
+    "category": "math"
+  },
+  {
+    "id": "q_106",
+    "query": "Janet has 110 cats and adopts 213 more. How many cats does she have in total?",
+    "target_answer": "323",
+    "category": "math"
+  },
+  {
+    "id": "q_107",
+    "query": "Janet has 111 cats and adopts 215 more. How many cats does she have in total?",
+    "target_answer": "326",
+    "category": "math"
+  },
+  {
+    "id": "q_108",
+    "query": "Janet has 112 cats and adopts 217 more. How many cats does she have in total?",
+    "target_answer": "329",
+    "category": "math"
+  },
+  {
+    "id": "q_109",
+    "query": "Janet has 113 cats and adopts 219 more. How many cats does she have in total?",
+    "target_answer": "332",
+    "category": "math"
+  },
+  {
+    "id": "q_110",
+    "query": "Janet has 114 cats and adopts 221 more. How many cats does she have in total?",
+    "target_answer": "335",
+    "category": "math"
+  },
+  {
+    "id": "q_111",
+    "query": "Janet has 115 cats and adopts 223 more. How many cats does she have in total?",
+    "target_answer": "338",
+    "category": "math"
+  },
+  {
+    "id": "q_112",
+    "query": "Janet has 116 cats and adopts 225 more. How many cats does she have in total?",
+    "target_answer": "341",
+    "category": "math"
+  },
+  {
+    "id": "q_113",
+    "query": "Janet has 117 cats and adopts 227 more. How many cats does she have in total?",
+    "target_answer": "344",
+    "category": "math"
+  },
+  {
+    "id": "q_114",
+    "query": "Janet has 118 cats and adopts 229 more. How many cats does she have in total?",
+    "target_answer": "347",
+    "category": "math"
+  },
+  {
+    "id": "q_115",
+    "query": "Janet has 119 cats and adopts 231 more. How many cats does she have in total?",
+    "target_answer": "350",
+    "category": "math"
+  },
+  {
+    "id": "q_116",
+    "query": "Janet has 120 cats and adopts 233 more. How many cats does she have in total?",
+    "target_answer": "353",
+    "category": "math"
+  },
+  {
+    "id": "q_117",
+    "query": "Janet has 121 cats and adopts 235 more. How many cats does she have in total?",
+    "target_answer": "356",
+    "category": "math"
+  },
+  {
+    "id": "q_118",
+    "query": "Janet has 122 cats and adopts 237 more. How many cats does she have in total?",
+    "target_answer": "359",
+    "category": "math"
+  },
+  {
+    "id": "q_119",
+    "query": "Janet has 123 cats and adopts 239 more. How many cats does she have in total?",
+    "target_answer": "362",
+    "category": "math"
+  },
+  {
+    "id": "q_120",
+    "query": "Janet has 124 cats and adopts 241 more. How many cats does she have in total?",
+    "target_answer": "365",
+    "category": "math"
+  }
+]

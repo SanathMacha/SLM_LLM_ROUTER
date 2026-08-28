@@ -1,0 +1,30 @@
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+*.env
+
+# Configuration & Credentials
+credentials.json
+secret_*.json
+output/*.sqlite
+
+# Local Development & Dependencies
+node_modules/
+__pycache__/
+.venv/
+venv/
+dist/
+build/
+
+# IDE & OS Files
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
